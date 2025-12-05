@@ -28,6 +28,5 @@ export async function POST(req: NextRequest) {
   const fileReleasePath = path.join(releaseDir, `${key}.json`);
   fs.writeFileSync(fileReleasePath, JSON.stringify({ release: true }));
 
-  const url = `/audio/${fileName}`;
-  return NextResponse.json({ message: "Uploaded successfully!", url });
+  return NextResponse.json(true);
 }

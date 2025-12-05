@@ -20,7 +20,7 @@ export default function UploadForm() {
       const reader = new FileReader();
       reader.onloadend = async () => {
         const base64 = reader.result;
-        const res = await fetch("/api/upload", {
+        await fetch("/api/upload", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -29,8 +29,7 @@ export default function UploadForm() {
             key: car,
           }),
         });
-        const data = await res.json();
-        toast.success(data.message);
+        toast.success("Uploaded successfully!");
 
         setFile(null);
         setCar("");

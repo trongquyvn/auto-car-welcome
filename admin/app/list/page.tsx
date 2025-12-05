@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { cars } from "@/constants";
+import { API_BASE_URL, cars } from "@/constants";
 
 interface FileItem {
   name: string;
@@ -12,7 +12,7 @@ export default function ListFile() {
   const [files, setFiles] = useState<FileItem[]>([]);
 
   useEffect(() => {
-    fetch("/api/list-files")
+    fetch(`${API_BASE_URL}/api/list-files`)
       .then((res) => res.json())
       .then((data) => setFiles(data.files))
       .catch((err) => console.error(err));

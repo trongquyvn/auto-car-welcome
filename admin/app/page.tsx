@@ -1,6 +1,6 @@
 "use client";
 
-import { cars } from "@/constants";
+import { API_BASE_URL, cars } from "@/constants";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
@@ -20,7 +20,7 @@ export default function UploadForm() {
       const reader = new FileReader();
       reader.onloadend = async () => {
         const base64 = reader.result;
-        await fetch("/api/upload", {
+        const res = await fetch(`${API_BASE_URL}/api/upload`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -29,14 +29,19 @@ export default function UploadForm() {
             key: car,
           }),
         });
-        toast.success("Uploaded successfully!");
+        const data = await res.json();
+        if (data) {
+          toast.success("Uploaded successfully!");
 
-        setFile(null);
-        setCar("");
-        // Reset input type=file
-        const input =
-          document.querySelector<HTMLInputElement>("input[type=file]");
-        if (input) input.value = "";
+          setFile(null);
+          setCar("");
+          // Reset input type=file
+          const input =
+            document.querySelector<HTMLInputElement>("input[type=file]");
+          if (input) input.value = "";
+        } else {
+          toast.error("Error");
+        }
       };
       reader.readAsDataURL(file);
     } catch (error) {

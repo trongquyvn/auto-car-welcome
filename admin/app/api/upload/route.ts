@@ -4,7 +4,7 @@ import path from "path";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { fileName, fileData } = body;
+  const { key, fileName, fileData } = body;
 
   if (!fileName || !fileData) {
     return NextResponse.json({ message: "Missing file" }, { status: 400 });
@@ -22,6 +22,11 @@ export async function POST(req: NextRequest) {
 
   const filePath = path.join(publicDir, fileName);
   fs.writeFileSync(filePath, buffer);
+
+  const releaseDir = path.join(process.cwd(), "public", "release");
+  if (!fs.existsSync(releaseDir)) fs.mkdirSync(releaseDir, { recursive: true });
+  const fileReleasePath = path.join(releaseDir, `${key}.json`);
+  fs.writeFileSync(fileReleasePath, JSON.stringify({ release: true }));
 
   const url = `/audio/${fileName}`;
   return NextResponse.json({ message: "Uploaded successfully!", url });

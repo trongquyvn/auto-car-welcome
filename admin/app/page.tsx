@@ -26,6 +26,7 @@ export default function UploadForm() {
           body: JSON.stringify({
             fileName: car + ".mp3",
             fileData: base64,
+            key: car,
           }),
         });
         const data = await res.json();

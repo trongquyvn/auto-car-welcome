@@ -1,62 +1,55 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { API_BASE_URL, cars } from "@/constants";
-
-interface FileItem {
-  name: string;
-  url: string;
-}
+import { cars, publicURL } from "@/constants";
+import { LoaderCircle } from "lucide-react";
 
 export default function ListFile() {
-  const [files, setFiles] = useState<FileItem[]>([]);
+  const [files, setFiles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/list-files`)
+    fetch(`/api/list-files`)
       .then((res) => res.json())
-      .then((data) => setFiles(data.files))
+      .then((data) => setFiles(data))
+      .then(() => {
+        setLoading(false);
+      })
       .catch((err) => console.error(err));
   }, []);
 
   return (
     <div className="bg-white p-6 w-full">
       <h2 className="text-xl font-bold mb-4">Uploaded MP3 Files</h2>
-      {files.length === 0 ? (
-        <p className="text-gray-500">No files uploaded yet.</p>
+      {!loading ? (
+        <>
+          {files.length === 0 ? (
+            <p className="text-gray-500">No files uploaded yet.</p>
+          ) : (
+            <ul className="space-y-3">
+              {cars.map((e) => {
+                const f = files.find((f: any) => f.name.includes(e.value));
+                return (
+                  <li key={e.id} className="flex justify-between items-center">
+                    <span className="truncate max-w-xs">{e.name}</span>
+                    {f && (
+                      <a
+                        href={`${publicURL}/uploads/${f.name}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:underline ml-4"
+                      >
+                        View
+                      </a>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </>
       ) : (
-        <ul className="space-y-3">
-          {cars.map((e) => {
-            const f = files.find((f) => f.name.includes(e.value));
-            return (
-              <li key={e.id} className="flex justify-between items-center">
-                <span className="truncate max-w-xs">{e.name}</span>
-                {f && (
-                  <a
-                    href={f.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500 hover:underline ml-4"
-                  >
-                    View
-                  </a>
-                )}
-              </li>
-            );
-          })}
-          {/* {files.map((file) => (
-            <li key={file.name} className="flex justify-between items-center">
-              <span className="truncate max-w-xs">{file.name}</span>
-              <a
-                href={file.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 hover:underline ml-4"
-              >
-                View
-              </a>
-            </li>
-          ))} */}
-        </ul>
+        <LoaderCircle className="animate-spin" />
       )}
     </div>
   );

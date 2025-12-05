@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Car-auto Admin",
-  description: "Car-auto Admin",
+  title: "Auto Car Admin",
+  description: "Auto Car Admin",
 };
 
 export default async function RootLayout({

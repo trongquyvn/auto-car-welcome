@@ -1,17 +1,28 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_KEY!,
+);
 
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const { id } = await params;
+  try {
+    const { id } = await params;
 
-  const releaseDir = path.join(process.cwd(), "public", "release");
-  if (!fs.existsSync(releaseDir)) fs.mkdirSync(releaseDir, { recursive: true });
-  const fileReleasePath = path.join(releaseDir, `${id}.json`);
-  fs.writeFileSync(fileReleasePath, JSON.stringify({ release: false }));
+    const releasePath = `release/${id}.json`;
+    await supabase.storage
+      .from(process.env.NEXT_PUBLIC_SUPABASE_BUCKET!)
+      .upload(releasePath, JSON.stringify({ release: false }), {
+        upsert: true,
+      });
 
-  return NextResponse.json({ id });
+    return NextResponse.json(id);
+  } catch (error) {
+    console.log("error: ", error);
+    return NextResponse.json(false);
+  }
 }

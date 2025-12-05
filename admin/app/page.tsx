@@ -1,52 +1,48 @@
 "use client";
 
-import { API_BASE_URL, cars } from "@/constants";
+import { cars } from "@/constants";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
 export default function UploadForm() {
   const [file, setFile] = useState<File | null>(null);
   const [car, setCar] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     try {
       e.preventDefault();
-      if (!file || !car) {
-        toast.error("Please enter car and upload file");
+      if (!car || !file) {
+        toast.error("Chọn user và file đi người đẹp");
         return;
       }
+      setLoading(true);
 
-      // convert file to Base64
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const base64 = reader.result;
-        const res = await fetch(`${API_BASE_URL}/api/upload`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            fileName: car + ".mp3",
-            fileData: base64,
-            key: car,
-          }),
-        });
-        const data = await res.json();
-        if (data) {
-          toast.success("Uploaded successfully!");
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("key", car);
 
-          setFile(null);
-          setCar("");
-          // Reset input type=file
-          const input =
-            document.querySelector<HTMLInputElement>("input[type=file]");
-          if (input) input.value = "";
-        } else {
-          toast.error("Error");
-        }
-      };
-      reader.readAsDataURL(file);
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (data) {
+        toast.success("Uploaded successfully!");
+
+        setFile(null);
+        setCar("");
+        // Reset input type=file
+        const input =
+          document.querySelector<HTMLInputElement>("input[type=file]");
+        if (input) input.value = "";
+        setLoading(false);
+      } else {
+        toast.error("Error");
+      }
     } catch (error) {
-      console.log("handleSubmit error: ", error);
-      toast.error("Error");
+      console.log("error: ", error);
     }
   };
 
@@ -88,7 +84,10 @@ export default function UploadForm() {
 
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition"
+          className={`w-full text-white py-2 rounded transition ${
+            loading ? "bg-gray-300" : " bg-blue-500 hover:bg-blue-600"
+          }`}
+          disabled={loading}
         >
           Upload
         </button>

@@ -1,7 +1,5 @@
-export const API_BASE_URL =
-  process.env.NODE_ENV === "development"
-    ? "http://localhost:3001"
-    : "https://auto-car-welcome.vercel.app";
+export const publicURL =
+  "https://ejjptcukabcxfwidxodr.supabase.co/storage/v1/object/public/cars";
 
 export const cars = [
   {

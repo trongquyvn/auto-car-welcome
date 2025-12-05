@@ -1,41 +1,50 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_KEY!,
+);
+
+export const runtime = "nodejs"; // Bắt buộc khi ghi file, upload
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { key, fileName, fileData } = body;
+    const formData = await req.formData();
+    const file = formData.get("file") as File;
+    const key = formData.get("key");
 
-    if (!fileName || !fileData) {
-      return NextResponse.json({ message: "Missing file" }, { status: 400 });
+    if (!file) {
+      return NextResponse.json({ error: "File is required" }, { status: 400 });
     }
 
-    // Decode Base64
-    const matches = fileData.match(/^data:.+;base64,(.+)$/);
-    if (!matches)
-      return NextResponse.json(
-        { message: "Invalid file data" },
-        { status: 400 },
-      );
+    // convert File to Buffer
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
 
-    const buffer = Buffer.from(matches[1], "base64");
+    // Tạo path file unique
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${key}.${fileExt}`;
+    const filePath = `uploads/${fileName}`;
 
-    const publicDir = path.join(process.cwd(), "public", "audio");
-    if (!fs.existsSync(publicDir)) fs.mkdirSync(publicDir, { recursive: true });
+    // Upload lên Supabase Storage
+    await supabase.storage
+      .from(process.env.NEXT_PUBLIC_SUPABASE_BUCKET!)
+      .upload(filePath, buffer, {
+        contentType: file.type,
+        upsert: true,
+      });
 
-    const filePath = path.join(publicDir, fileName);
-    fs.writeFileSync(filePath, buffer);
-
-    const releaseDir = path.join(process.cwd(), "public", "release");
-    if (!fs.existsSync(releaseDir))
-      fs.mkdirSync(releaseDir, { recursive: true });
-    const fileReleasePath = path.join(releaseDir, `${key}.json`);
-    fs.writeFileSync(fileReleasePath, JSON.stringify({ release: true }));
+    const releasePath = `release/${key}.json`;
+    await supabase.storage
+      .from(process.env.NEXT_PUBLIC_SUPABASE_BUCKET!)
+      .upload(releasePath, JSON.stringify({ release: true }), {
+        upsert: true,
+      });
 
     return NextResponse.json(true);
-  } catch (error) {
-    console.log("error: ", error);
-    return NextResponse.json(false);
+  } catch (e: any) {
+    console.error("Server error:", e);
+    return NextResponse.json({ error: e.message }, { status: 500 });
   }
 }

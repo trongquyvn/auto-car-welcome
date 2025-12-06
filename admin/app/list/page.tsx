@@ -30,14 +30,21 @@ export default function ListFile() {
               {cars.map((e) => {
                 const f = files.find((f: any) => f.name.includes(e.value));
                 return (
-                  <li key={e.id} className="flex justify-between items-center">
+                  <li
+                    key={e.id}
+                    className="flex justify-between items-center pb-1 mb-6 border-b"
+                  >
                     <span className="truncate max-w-xs">{e.name}</span>
                     {f && (
                       <a
-                        href={`${publicURL}/uploads/${f.name}`}
+                        onClick={() => {
+                          window.open(
+                            `${publicURL}/uploads/${f.name}?ts=${Date.now()}`,
+                          );
+                        }}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-500 hover:underline ml-4"
+                        className="text-blue-500 hover:underline ml-4 cursor-pointer"
                       >
                         View
                       </a>

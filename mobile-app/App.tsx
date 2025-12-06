@@ -6,6 +6,7 @@ import {
 } from 'react-native-safe-area-context';
 import { downloadMP3, validateUrl, path } from './file';
 import Sound from 'react-native-sound';
+import { publicAPI, publicURL, userKey } from './constant';
 
 function App() {
   return (
@@ -14,17 +15,20 @@ function App() {
     </SafeAreaProvider>
   );
 }
-// https://ejjptcukabcxfwidxodr.supabase.co/storage/v1/object/public/cars/uploads/bin.mp3
-const url = 'https://auto-car-welcome.vercel.app/audio/bin.mp3';
+
 function AppContent() {
   const safeAreaInsets = useSafeAreaInsets();
 
   const runSound = async () => {
     console.log('start runSound');
     try {
-      const valid = await validateUrl(url);
-      if (valid) {
-        await downloadMP3(url);
+      const check = publicURL + '/release/' + userKey + '.json';
+      const valid = await validateUrl(check);
+      if (valid && valid.release) {
+        const endCheck = publicAPI + '/' + userKey;
+        validateUrl(endCheck);
+        const downLoadURL = publicURL + '/uploads/' + userKey + '.mp3';
+        await downloadMP3(downLoadURL);
       }
       playSound();
     } catch (e) {
@@ -49,6 +53,7 @@ function AppContent() {
 
   useEffect(() => {
     runSound();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -59,11 +64,13 @@ function AppContent() {
         justifyContent: 'center',
         alignItems: 'center',
         paddingTop: safeAreaInsets.top,
-        backgroundColor: '#fff',
+        backgroundColor: 'black',
       }}
     >
       {/* eslint-disable-next-line react-native/no-inline-styles */}
-      <Text style={{ color: 'black' }}>Welcome</Text>
+      <Text style={{ color: '#fff', fontSize: 40, textAlign: 'center' }}>
+        Welcome to Auto-Car
+      </Text>
     </View>
   );
 }

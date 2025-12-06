@@ -18,20 +18,12 @@ export const downloadMP3 = async (url: string) => {
 
 export const validateUrl = async (url: string) => {
   try {
-    const res = await fetch(url, { method: 'GET' });
-    return res.ok;
+    const res = await fetch(url, {
+      method: 'GET',
+      cache: 'no-store',
+    } as RequestInit);
+    return res.json();
   } catch {
     return false;
   }
-};
-
-export const playMP3 = () => {
-  // const path = `${RNFS.DocumentDirectoryPath}/example.mp3`;
-  // const sound = new Sound(path, '', error => {
-  //   if (error) {
-  //     console.log('Failed to load sound', error);
-  //     return;
-  //   }
-  //   sound.play(() => sound.release());
-  // });
 };

@@ -1,6 +1,6 @@
 {
   "name": "Auto-Start Admin",
-  "short_name": "NextApp",
+  "short_name": "Car Admin",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

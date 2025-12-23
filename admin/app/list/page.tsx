@@ -11,7 +11,11 @@ export default function ListFile() {
   useEffect(() => {
     fetch(`/api/list-files`)
       .then((res) => res.json())
-      .then((data) => setFiles(data))
+      .then((data) => {
+        if (!data.error) {
+          setFiles(data);
+        }
+      })
       .then(() => {
         setLoading(false);
       })

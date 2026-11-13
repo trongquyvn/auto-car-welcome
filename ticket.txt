@@ -1,65 +1,14 @@
-Notes & Context
-This will be a middleware utility that will be hosted on the gateway service
-
-The utility needs to be a self contained feature so that we can port it to other countries quickly
-
+every 5 mins, 
+check last updatedAt is more then 15 mins,
+check if payment pending
+if payment pending, 
+skip, go to next lead 
+if payment success,
+check if policy submitted
+if submitted, 
+Mask all pii data in payment, cart, lead and policy
+if not submitted
+skip, 
+if payment fail
+Mask all pii data in payment, cart, lead and policy
  
-
-Technical Details
-The session id generation should NEVER be able to be triggered by any public api
-
-For the sessions table, the fields are:
-
-sessionId: Unique string field, this field MUST be indexed
-
-leadId: ObjectId field, this field MUST be indexed
-
-createdAt: use default from mongoose/mongoDB
-
-updatedAt:  use default from mongoose/mongoDB
-
-Every GQL request should have a x-lead-session header
-
-Session timeout will default to 24 hours (1,440 minutes)
-
-Configurable via spring cloud config
-
- 
-
-Work will be split into 6 separate tickets per country, consisting of:
-API logic to create session & add to createLead’s response header
-
-API implementation of the session verification on api-gateway
-
-UI logic to save the new sessionId field from createLead’s response
-
-UI logic for middleware to send the new x-lead-session header
-
-Task to update the list of endpoints that need to be checked by #2
-
-Task to update spring cloud config for api-gateway to get access to mongoDB
-
- 
-
-Session verification middleware logic
-Flow:
-
-Check if the GQL query or mutation requires a valid session
-
-If required, check if the x-lead-session header is included in the header
-
-If found, check if the session can be found in the database
-
-If found, check if the leadId in the body is the same as the database entry
-
- If the same, check if session is still valid (i.e. not timed out)
-
-If valid, continue on the the API
-
-Else, return an Unauthorised, please re-validate session error
-
-The logic will try to find the sessionId in the database
-
-Then it will check if the leadId in the request matches with the leadId in the database entry
-
-Cacoo link: https://cacoo.com/diagrams/lt4FmUfX4QW29Y2Q/85E4D

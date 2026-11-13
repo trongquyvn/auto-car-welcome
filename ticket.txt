@@ -1,2 +1,4 @@
 6af6aeae9a47a9001b57d68f 
 6af6aeb97a189a001ce0b73b 
+
+{ updatedAt: { $lte: ISODate("2026-11-13T12:00:00Z") }, piiMaskedAt: { $exists: false } }

@@ -1,14 +1,2 @@
-every 5 mins, 
-check last updatedAt is more then 15 mins,
-check if payment pending
-if payment pending, 
-skip, go to next lead 
-if payment success,
-check if policy submitted
-if submitted, 
-Mask all pii data in payment, cart, lead and policy
-if not submitted
-skip, 
-if payment fail
-Mask all pii data in payment, cart, lead and policy
- 
+6af6aeae9a47a9001b57d68f 
+6af6aeb97a189a001ce0b73b 

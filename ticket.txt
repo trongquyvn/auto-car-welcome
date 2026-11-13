@@ -2,3 +2,23 @@
 6af6aeb97a189a001ce0b73b 
 
 { updatedAt: { $lte: ISODate("2026-11-13T12:00:00Z") }, piiMaskedAt: { $exists: false } }
+
+Every 5 minutes, the scheduler picks up to 500 main leads that were last updated more than 15 minutes ago and are not yet masked. Sub-leads are masked together with their main lead. Each lead is then handled based on its latest payment:
+
+┌──────────────────────────────────────────┬──────────────────────────────────────────────┬───────────────────────────────┐
+│              Latest payment              │                    Policy                    │            Action             │
+├──────────────────────────────────────────┼──────────────────────────────────────────────┼───────────────────────────────┤
+│ Pending (INITIAL / PENDING / SUPERSEDED) │ —                                            │ Skip, retry on a later run    │
+├──────────────────────────────────────────┼──────────────────────────────────────────────┼───────────────────────────────┤
+│ SUCCESSFUL                               │ Missing, or not all finished                 │ Skip, retry on a later run    │
+├──────────────────────────────────────────┼──────────────────────────────────────────────┼───────────────────────────────┤
+│ SUCCESSFUL                               │ All SUBMITTED / SUCCESS / FAILED / ABANDONED │ Mask lead, payment and policy │
+├──────────────────────────────────────────┼──────────────────────────────────────────────┼───────────────────────────────┤
+│ FAILED                                   │ —                                            │ Mask lead, payment and policy │
+├──────────────────────────────────────────┼──────────────────────────────────────────────┼───────────────────────────────┤
+│ None                                     │ —                                            │ Mask lead                     │
+└──────────────────────────────────────────┴──────────────────────────────────────────────┴───────────────────────────────┘
+
+Masked fields: names, mobile, email, HKID/passport, address, signature, face image, place of birth and TIN are replaced with ***. DOB and ID issue date are set to null.
+
+Tracking: masked leads get piiMaskedAt. Their updatedAt is unchanged.

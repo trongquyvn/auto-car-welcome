@@ -22,3 +22,94 @@ Every 5 minutes, the scheduler picks up to 500 main leads that were last updated
 Masked fields: names, mobile, email, HKID/passport, address, signature, face image, place of birth and TIN are replaced with ***. DOB and ID issue date are set to null.
 
 Tracking: masked leads get piiMaskedAt. Their updatedAt is unchanged.
+
+
+>>>>>>>>>>>>>>>
+
+
+Gateway session protection: protected GraphQL fields
+
+Can configuration: SESSION_VERIFICATION_REQUIRED_ENDPOINTS in d2c-api-gateway-hk, 
+
+For each field below, the gateway reads the lead ID from the listed argument. It then checks that this lead ID matches the lead of the session sent in the x-lead-session header. If the header is missing, the session is unknown or expired, or the lead IDs differ, the request is rejected.
+
+Lead
+
+┌─────┬──────────────────────────┬──────────────────┐
+│  #  │          Field           │ Lead ID argument │
+├─────┼──────────────────────────┼──────────────────┤
+│ 1   │ lead                     │ _id              │
+├─────┼──────────────────────────┼──────────────────┤
+│ 2   │ updateLead               │ _id              │
+├─────┼──────────────────────────┼──────────────────┤
+│ 3   │ updateLeadLanguage       │ _id              │
+├─────┼──────────────────────────┼──────────────────┤
+│ 4   │ validateLeadUniqueInfo   │ _id              │
+├─────┼──────────────────────────┼──────────────────┤
+│ 5   │ saveForLater             │ _id              │
+├─────┼──────────────────────────┼──────────────────┤
+│ 6   │ saveForLaterRevamp       │ _id              │
+├─────┼──────────────────────────┼──────────────────┤
+│ 7   │ updateEdmLastTimeSentOTP │ _id              │
+├─────┼──────────────────────────┼──────────────────┤
+│ 8   │ edmOTPAttempt            │ _id              │
+├─────┼──────────────────────────┼──────────────────┤
+│ 9   │ checkNameScreen          │ leadId           │
+├─────┼──────────────────────────┼──────────────────┤
+│ 10  │ leadSessionStatus        │ leadId           │
+├─────┼──────────────────────────┼──────────────────┤
+│ 11  │ createEkycMobileHandoff  │ leadId           │
+└─────┴──────────────────────────┴──────────────────┘
+
+Policy and underwriting
+
+┌─────┬────────────────────────┬──────────────────────────┐
+│  #  │         Field          │     Lead ID argument     │
+├─────┼────────────────────────┼──────────────────────────┤
+│ 12  │ createPolicy           │ policyCreateInput.leadId │
+├─────┼────────────────────────┼──────────────────────────┤
+│ 13  │ policy                 │ _id                      │
+├─────┼────────────────────────┼──────────────────────────┤
+│ 14  │ updatePolicy           │ where._id                │
+├─────┼────────────────────────┼──────────────────────────┤
+│ 15  │ uwStartEnquiry         │ leadId                   │
+├─────┼────────────────────────┼──────────────────────────┤
+│ 16  │ uwHealthQuestions      │ leadId                   │
+├─────┼────────────────────────┼──────────────────────────┤
+│ 17  │ uwGetDecision          │ leadId                   │
+├─────┼────────────────────────┼──────────────────────────┤
+│ 18  │ uwOptionDetail         │ leadId                   │
+├─────┼────────────────────────┼──────────────────────────┤
+│ 19  │ uwLookupQuestionOption │ leadId                   │
+└─────┴────────────────────────┴──────────────────────────┘
+
+Payment
+
+┌─────┬─────────────────────────────┬─────────────────────────────────────────┐
+│  #  │            Field            │            Lead ID argument             │
+├─────┼─────────────────────────────┼─────────────────────────────────────────┤
+│ 20  │ generateFpsQrCode           │ generateFpsQrCodeInput.leadId           │
+├─────┼─────────────────────────────┼─────────────────────────────────────────┤
+│ 21  │ fpsPaymentStatus            │ fpsPaymentStatusInput.leadId            │
+├─────┼─────────────────────────────┼─────────────────────────────────────────┤
+│ 22  │ generateAsiaPayPaymentInfo  │ generateAsiaPayPaymentInfoInput.leadId  │
+├─────┼─────────────────────────────┼─────────────────────────────────────────┤
+│ 23  │ generatePaymentTemplateInfo │ generatePaymentTemplateInfoInput.leadId │
+├─────┼─────────────────────────────┼─────────────────────────────────────────┤
+│ 24  │ paymentInfo                 │ leadId                                  │
+├─────┼─────────────────────────────┼─────────────────────────────────────────┤
+│ 25  │ paymentInfoMultipleInsured  │ leadId                                  │
+├─────┼─────────────────────────────┼─────────────────────────────────────────┤
+│ 26  │ checkMTEPayment             │ checkMTEPaymentInput.leadId             │
+└─────┴─────────────────────────────┴─────────────────────────────────────────┘
+
+Cart and pending policy
+┌─────┬───────────────────────────────┬──────────────────┐
+│  #  │             Field             │ Lead ID argument │
+├─────┼───────────────────────────────┼──────────────────┤
+│ 27  │ getCart                       │ leadId           │
+├─────┼───────────────────────────────┼──────────────────┤
+│ 28  │ pendingPolicy                 │ leadId           │
+├─────┼───────────────────────────────┼──────────────────┤
+│ 29  │ updatePendingPolicyActionById │ leadId           │
+└─────┴───────────────────────────────┴──────────────────┘
